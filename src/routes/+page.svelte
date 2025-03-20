@@ -1,0 +1,14 @@
+<body>
+    <h1>Paulo César Gomes Rodrigues</h1>
+    <!-- <nav>
+            <a href="index.html">Home</a>
+            <a href="projects/index.html">Projects</a>
+            <a href="contact/index.html">Contact</a>
+            <a href="resume/index.html">Resume</a>
+            <a href="https://github.com/paulocgr9" target="_blank">GitHub</a>
+    </nav> -->
+    <p>Paulo tem 20 anos, reside na cidade Rio de Janeiro - RJ e atualmente está cursando o 5º período de 
+        Ciência de Dados e Inteligência Artificial na Fundação Getulio Vargas.
+    </p>
+    <img src=images/paulo.jpg alt="Fotografia de Paulo Rodrigues">
+</body>
