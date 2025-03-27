@@ -1,24 +1,44 @@
-<h1>Resume</h1>
-<!-- <nav>
-    <a href="../index.html">Home</a>
-    <a href="../projects/index.html">Projects</a>
-    <a href="../contact/index.html">Contact</a>
-    <a href="../resume/index.html">Resume</a>
-    <a href="https://github.com/paulocgr9" target="_blank">GitHub</a>
-</nav> -->
-    <article>
-        <header><h2>Contact</h2></header>
-        <p>Telefone: (21) 98765-4321</p>
-        <p>E-mail: nome@gmail.com</p>
-        <p>LinkedIn: MeuLinkedin</p>
-    </article>
-    <article>
-        <header><h2>Education</h2></header>
-        <h3>Fundação Getulio Vargas</h3>
-        <p>Ciência de Dados e Inteligência Artificial</p>
-        <p>2023 - 2026</p>
+<svelte:head>
+  <title>Resume</title>
+</svelte:head>
 
-        <h3>ETEC José Martimiano da Silva</h3>
-        <p>Técnico em Administração</p>
-        <p>2020 - 2022</p>
-    </article>
+<h1>Resume</h1>
+<hr />
+<div class="resume">
+<section>
+    <header>Interests</header>
+    <ul>
+        <li>Scaring (Formerly) </li>
+        <li>Comedy</li>
+        <li>His Relationship with Celia Mae </li>
+        <li>The Theater</li>
+    </ul>
+    </section>
+<section>
+    <header>Education</header>
+    <ul>
+        <li>Monsters University, Scaring Program</li>
+        <li>Codeacademy</li>
+    </ul>
+    </section>
+<section>
+    <header>Experience</header>
+    <ul>
+        <li>Monsters, Inc</li>
+        <ul>
+            <li>Worker in mailroom</li>
+            <li>Scarer assistant</li>
+            <li>Co-CEO of Monsters, Inc.</li>
+            <li>Jokester</li>
+        </ul>
+    </ul>
+    </section>
+<section>
+    <header>Extracurriculars</header>
+    <ul>
+        <li>Won the Scare Games with <a href="https://disney.fandom.com/wiki/Oozma_Kappa">Oozma Kappa</a></li>
+        <li>Helped transition Monsters, Inc. into a laugh-based energy company.</li>
+        <li>Became a top comedian and mentor for future monsters</li>
+    </ul>
+</section>
+</div>

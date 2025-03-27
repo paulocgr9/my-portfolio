@@ -1,40 +1,58 @@
-<h1>Projects</h1>
-<!-- <nav>
-    <a href="../index.html">Home</a>
-    <a href="../projects/index.html">Projects</a>
-    <a href="../contact/index.html">Contact</a>
-    <a href="../resume/index.html">Resume</a>
-    <a href="https://github.com/paulocgr9" target="_blank">GitHub</a>
-</nav> -->
+<svelte:head>
+  <title>My projects</title>
+</svelte:head>
+<script>
+    import projects from "$lib/projects.json";
+    import Project from "$lib/Project.svelte";
+</script>
+
+<!-- <pre>{ JSON.stringify(projects, null, "\t") }</pre>   -->
+
+<h1>{ projects.length} Projects</h1>
 <div class="projects">
-<article>
-    <h2>Lorem ipsum dolor sit.</h2>
-    <img src="https://www.svgrepo.com/show/340721/no-image.svg" alt="">
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis iure maxime id consectetur, officiis excepturi. Distinctio error quo corporis cum, esse sapiente asperiores aut ea exercitationem ducimus dicta autem? Illum.</p>
-</article>
-<article>
-    <h2>Optio quos repudiandae ad.</h2>
-    <img src="https://www.svgrepo.com/show/340721/no-image.svg" alt="">
-    <p>Atque quas doloribus rem aspernatur id velit. Delectus odit consequuntur eius error suscipit qui magnam nihil consectetur veritatis doloremque? Aut accusamus aliquid deleniti consectetur quasi nisi, maiores nulla. Dolor, natus.</p>
-</article>
-<article>
-    <h2>Nam repellat maxime suscipit!</h2>
-    <img src="https://www.svgrepo.com/show/340721/no-image.svg" alt="">
-    <p>Esse quia sed expedita beatae blanditiis exercitationem delectus, commodi recusandae nihil quisquam architecto et voluptate voluptas quo nemo vel praesentium nostrum tempore culpa minus debitis magni! Provident tempora atque consequuntur!</p>
-</article>
-<article>
-    <h2>Iusto natus cum corrupti.</h2>
-    <img src="https://www.svgrepo.com/show/340721/no-image.svg" alt="">
-    <p>Temporibus nemo sed, excepturi dolore nam pariatur? Officiis id sit exercitationem, corporis voluptatum, quae sint natus odio consequuntur alias provident veniam. Nemo temporibus non maxime aliquam reiciendis ratione laboriosam molestias?</p>
-</article>
-<article>
-    <h2>Iure earum corporis rerum?</h2>
-    <img src="https://www.svgrepo.com/show/340721/no-image.svg" alt="">
-    <p>Explicabo officia placeat debitis sit suscipit, animi, dolores, reiciendis natus quasi maiores est omnis laborum. Unde ea laudantium aliquid odio, fugit earum omnis itaque ex, molestias doloribus nam cumque totam!</p>
-</article>
-<article>
-    <h2>Veritatis amet minus laboriosam.</h2>
-    <img src="https://www.svgrepo.com/show/340721/no-image.svg" alt="">
-    <p>Exercitationem porro nemo, deserunt alias saepe consequuntur quae reiciendis nisi eligendi ut iusto eveniet ab a dolorem sunt vero distinctio itaque quam aperiam dicta esse quisquam pariatur provident. Doloribus, perferendis.</p>
-</article>
+    {#each projects as p}
+        <Project data={p}/>
+      <!-- <article>
+        <h2>{p.title}</h2>
+        <img src={p.image} alt="" />
+        <p>
+            {p.description}
+        </p>
+      </article> -->
+    {/each}
 </div>
+  
+
+<!-- .projects>article*6>h2>lorem4^img[src="https://i.etsystatic.com/iap/a0f246/5502938083/iap_640x640.5502938083_69958kp0.jpg"]+p>lorem -->
+<!-- <div class="projects">
+    <article>
+        <h2>Lorem ipsum dolor sit.</h2>
+        <img src="https://i.etsystatic.com/iap/a0f246/5502938083/iap_640x640.5502938083_69958kp0.jpg" alt="">
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus nesciunt reiciendis possimus dicta doloremque amet sunt aspernatur deserunt sequi! Est hic nesciunt libero natus modi earum maiores aut cum incidunt.</p>
+    </article>
+    <article>
+        <h2>Voluptatibus sint eos consequuntur.</h2>
+        <img src="https://i.etsystatic.com/iap/a0f246/5502938083/iap_640x640.5502938083_69958kp0.jpg" alt="">
+        <p>Quasi et culpa suscipit, alias quaerat fuga natus eos nulla cupiditate cumque eum voluptatem repellendus dignissimos aut fugiat harum ducimus quibusdam corporis, molestiae expedita ullam hic. Debitis in fugiat nam?</p>
+    </article>
+    <article>
+        <h2>Ab, tenetur aperiam! Id?</h2>
+        <img src="https://i.etsystatic.com/iap/a0f246/5502938083/iap_640x640.5502938083_69958kp0.jpg" alt="">
+        <p>Cupiditate quibusdam repellat excepturi facilis aperiam, illum alias architecto aspernatur culpa in a mollitia non laboriosam, odio veritatis totam eum et tenetur quidem nemo inventore. Eos sint quia similique? Similique?</p>
+    </article>
+    <article>
+        <h2>Omnis perferendis doloribus qui!</h2>
+        <img src="https://i.etsystatic.com/iap/a0f246/5502938083/iap_640x640.5502938083_69958kp0.jpg" alt="">
+        <p>Blanditiis eos perferendis, cupiditate accusantium vero adipisci itaque, animi eius voluptatum dolore sapiente ipsum omnis vel in cum nesciunt repellendus a error! Vero ducimus amet fugiat praesentium. Vero, asperiores numquam.</p>
+    </article>
+    <article>
+        <h2>Omnis totam assumenda maiores!</h2>
+        <img src="https://i.etsystatic.com/iap/a0f246/5502938083/iap_640x640.5502938083_69958kp0.jpg" alt="">
+        <p>Error ullam laboriosam nostrum eos soluta mollitia reprehenderit nulla eaque, cumque et voluptates, voluptatibus adipisci, quod eligendi dolorem asperiores tempore laborum laudantium cupiditate provident cum! Possimus ex similique odio autem?</p>
+    </article>
+    <article>
+        <h2>Qui consequuntur dolore quis?</h2>
+        <img src="https://i.etsystatic.com/iap/a0f246/5502938083/iap_640x640.5502938083_69958kp0.jpg" alt="">
+        <p>Tempore, culpa consequatur voluptatem quam, repellat inventore alias nam ut incidunt obcaecati qui neque eaque illum nostrum totam ipsa quae quaerat sint quis reiciendis omnis natus placeat quibusdam? Ut, assumenda.</p>
+    </article>
+</div>  -->
