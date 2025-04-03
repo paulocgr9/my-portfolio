@@ -59,7 +59,7 @@
 
 <!-- <pre>{ JSON.stringify(projects, null, "\t") }</pre>   -->
 
-<h1>{ projects.length} Projects</h1>
+<h1>{ filteredByYear.length} Projects</h1>
 <Pie data={pieData} bind:selectedIndex={selectedYearIndex} />
 <input type="search" bind:value={query} aria-label="Search projects" placeholder="🔍 Search projects..." />
 <div class="projects">
