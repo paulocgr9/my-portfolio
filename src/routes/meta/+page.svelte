@@ -5,7 +5,14 @@
 <script>
     import * as d3 from "d3";
     import { onMount } from "svelte";
+    import {
+        computePosition,
+        autoPlacement,
+        offset,
+    } from '@floating-ui/dom';
+    import Bar from '$lib/Bar.svelte';
 
+    let commitTooltip;
     let data = [];
     let commits = [];
 
@@ -24,6 +31,14 @@
     let xAxisGridlines, yAxisGridlines;
 
     let cursor = {x: 0, y: 0};
+    let tooltipPosition = {x: 0, y: 0};
+
+    let clickedCommits = [];
+
+    let commitProgress = 100;
+    let commitMaxTime;
+    let timeScale;
+
 
     onMount(async () => {
         data = await d3.csv("./loc.csv", (row) => ({
@@ -63,23 +78,65 @@
 
                 return ret;
             });
-
+            commits = d3.sort(commits, d => -d.totalLines);
         // console.log(data);
         // console.log(commits);
     });
+
+    async function dotInteraction (index, evt) {
+        let hoveredDot = evt.target;
+        if (evt.type === "mouseenter") {
+            hoveredIndex = index;
+            cursor = {x: evt.x, y: evt.y};
+            tooltipPosition = await computePosition(hoveredDot, commitTooltip, {
+                strategy: "fixed", // because we use position: fixed
+                middleware: [
+                    offset(5), // spacing from tooltip to dot
+                    autoPlacement() // see https://floating-ui.com/docs/autoplacement
+                ],
+            });        }
+        else if (evt.type === "mouseleave") {
+            hoveredIndex = -1
+        }
+        else if (evt.type === "click") {
+            let commit = filteredCommits[index]
+            if (!clickedCommits.includes(commit)) {
+                // Add the commit to the clickedCommits array
+                clickedCommits = [...clickedCommits, commit];
+            }
+            else {
+                    // Remove the commit from the array
+                    clickedCommits = clickedCommits.filter(c => c !== commit);
+            }
+        }
+    }
+
 
     $: minDate = d3.min(commits.map((d) => d.date));
     $: maxDate = d3.max(commits.map((d) => d.date));
     $: maxDatePlusOne = new Date(maxDate);
     $: maxDatePlusOne.setDate(maxDatePlusOne.getDate() + 1);
 
+    $: timeScale = d3.scaleTime().domain([minDate,maxDatePlusOne]).range([0,100]);
+    $: commitMaxTime = timeScale.invert(commitProgress);
+
+    $: filteredCommits = commits.filter(d => d.datetime <= commitMaxTime);  
+    $:  console.log(filteredCommits);
+    $: filteredMinDate = d3.min(filteredCommits.map((d) => d.datetime));
+    $: filteredMaxDate = d3.max(filteredCommits.map((d) => d.datetime));
+    $: filteredMaxDatePlusOne = new Date(filteredMaxDate);
+    $: filteredMaxDatePlusOne.setDate(filteredMaxDatePlusOne.getDate() + 1);
+
+    $: filteredLines = data.filter(d => d.datetime <= commitMaxTime)
+
     $: xScale = d3
         .scaleTime()
-        .domain([minDate, maxDatePlusOne])
+        .domain([filteredMinDate, filteredMaxDatePlusOne]) 
         .range([0, width])
         .nice();
 
     $: yScale = d3.scaleLinear().domain([24, 0]).range([height, 0]);
+    
 
     $: {
         d3.select(xAxis).call(d3.axisBottom(xScale));
@@ -94,39 +151,51 @@
         );
     }
 
-    let hoveredIndex = -1;
-    $: hoveredCommit = commits[hoveredIndex] ?? hoveredCommit ?? {};
+    $: rScale = d3.scaleSqrt()
+                .domain(d3.extent(commits.map(d=>d.totalLines)))
+                .range([2, 30]);
 
-    
+    let hoveredIndex = -1;
+    $: hoveredCommit = filteredCommits[hoveredIndex] ?? hoveredCommit ?? {};
+
+    $: allTypes = Array.from(new Set(data.map(d => d.type)));
+    $: selectedLines = (clickedCommits.length > 0 ? clickedCommits : filteredCommits).flatMap(d => d.lines);
+    $: selectedCounts = d3.rollup(
+        selectedLines,
+        v => v.length,
+        d => d.type
+);
+    $: languageBreakdown = allTypes.map(type => [type, selectedCounts.get(type) || 0]);
+
 </script>
 
 <section>
     <h2>Summary</h2>
     <dl class="stats">
         <dt>Total <abbr title="Lines of code">LOC</abbr></dt>
-        <dd>{data.length}</dd>
+        <dd>{filteredLines.length}</dd>
         <dt>Files</dt>
-        <dd>{d3.groups(data, (d) => d.file).length}</dd>
+        <dd>{d3.groups(filteredLines, (d) => d.file).length}</dd>
         <dt>Commits</dt>
-        <dd>{d3.groups(data, (d) => d.commit).length}</dd>
+        <dd>{d3.groups(filteredLines, (d) => d.commit).length}</dd>
     </dl>
 </section>
 
 <h3>Commits by time of day</h3>
 <svg viewBox="0 0 {width} {height}">
     <g class="dots">
-        {#each commits as commit, index}
+        {#each filteredCommits as commit, index}
             <circle
-                cx={xScale(commit.datetime)}
-                cy={yScale(commit.hourFrac)}
-                r="5"
+                on:mouseenter={evt => dotInteraction(index, evt)}
+                on:mouseleave={evt => dotInteraction(index, evt)}
+                on:click={ evt => dotInteraction(index, evt) }
+                class:selected={ clickedCommits.includes(commit) }
+                cx={ xScale(commit.datetime) }
+                cy={ yScale(commit.hourFrac) }
+                r={ rScale(commit.totalLines) }
                 fill="steelblue"
-                on:mouseenter={evt => {
-                    hoveredIndex = index;
-                    cursor = {x: evt.x, y: evt.y};
-                }}
-                on:mouseleave={evt => hoveredIndex = -1}
-            />
+                fill-opacity="0.5"
+            />  
         {/each}
     </g>
     <!-- scatterplot will go here -->
@@ -136,7 +205,19 @@
 
 </svg>
 
-<dl class="info tooltip" hidden={hoveredIndex === -1} style="top: {cursor.y}px; left: {cursor.x}px">
+<div class="slider-container">
+    <div class="slider">
+        <label for="slider">Show commits until:</label>
+        <input type="range" id="slider" name="slider" min=0 max=100 bind:value={commitProgress}/>
+    </div>
+    <time class="time-label">{commitMaxTime.toLocaleString()}</time>
+</div>
+
+
+<Bar data={languageBreakdown} width={width} />
+
+
+<dl class="info tooltip" bind:this={commitTooltip} hidden={hoveredIndex === -1} style="top: {cursor.y}px; left: {cursor.x}px">
     <dt>Commit</dt>
     <dd><a href="{ hoveredCommit.url }" target="_blank">{ hoveredCommit.id }</a></dd>
 
@@ -233,8 +314,22 @@
 
 }
 
+    .selected {
+        fill: var(--color-accent);
+    }
 
-
-
+    .slider-container{
+        display:grid;
+    }
+    .slider{
+        display: flex;
+    }
+    #slider{
+        flex:1;
+    }
+    .time-label{
+        font-size: 0.75em;
+        text-align: right;
+    }
 
 </style>
