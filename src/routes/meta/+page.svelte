@@ -11,6 +11,7 @@
         offset,
     } from '@floating-ui/dom';
     import Bar from '$lib/Bar.svelte';
+    import Scrolly from "svelte-scrolly";
 
     let commitTooltip;
     let data = [];
@@ -111,7 +112,6 @@
         }
     }
 
-
     $: minDate = d3.min(commits.map((d) => d.date));
     $: maxDate = d3.max(commits.map((d) => d.date));
     $: maxDatePlusOne = new Date(maxDate);
@@ -181,30 +181,6 @@
     </dl>
 </section>
 
-<h3>Commits by time of day</h3>
-<svg viewBox="0 0 {width} {height}">
-    <g class="dots">
-        {#each filteredCommits as commit, index}
-            <circle
-                on:mouseenter={evt => dotInteraction(index, evt)}
-                on:mouseleave={evt => dotInteraction(index, evt)}
-                on:click={ evt => dotInteraction(index, evt) }
-                class:selected={ clickedCommits.includes(commit) }
-                cx={ xScale(commit.datetime) }
-                cy={ yScale(commit.hourFrac) }
-                r={ rScale(commit.totalLines) }
-                fill="steelblue"
-                fill-opacity="0.5"
-            />  
-        {/each}
-    </g>
-    <!-- scatterplot will go here -->
-    <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
-    <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
-    <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
-
-</svg>
-
 <div class="slider-container">
     <div class="slider">
         <label for="slider">Show commits until:</label>
@@ -213,25 +189,68 @@
     <time class="time-label">{commitMaxTime.toLocaleString()}</time>
 </div>
 
+<Scrolly bind:progress={ commitProgress }>
+	<!-- Story here -->
+    {#each commits as commit, index }
+        <p>
+            On {commit.datetime.toLocaleString("en", {dateStyle: "full", timeStyle: "short"})},
+            {index === 0 
+                ? "I set forth on my very first commit, beginning a magical journey of code. You can view it "
+            : "I added another commit. See it "}
+        <a href="{commit.url}" target="_blank">
+            {index === 0 ? "here" : "here"}
+        </a>.
+        This update transformed {commit.totalLines} lines across { d3.rollups(commit.lines, D => D.length, d => d.file).length } files.
+        With every commit, our project grows.
+    </p>
+    {/each}
 
-<Bar data={languageBreakdown} width={width} />
+	<svelte:fragment slot="viz">
+		<!-- Visualizations here -->
+        <h3>Commits by time of day</h3>
+        <svg viewBox="0 0 {width} {height}">
+            <g class="dots">
+                {#each filteredCommits as commit, index}
+                    <circle
+                        on:mouseenter={evt => dotInteraction(index, evt)}
+                        on:mouseleave={evt => dotInteraction(index, evt)}
+                        on:click={ evt => dotInteraction(index, evt) }
+                        class:selected={ clickedCommits.includes(commit) }
+                        cx={ xScale(commit.datetime) }
+                        cy={ yScale(commit.hourFrac) }
+                        r={ rScale(commit.totalLines) }
+                        fill="steelblue"
+                        fill-opacity="0.5"
+                    />  
+                {/each}
+            </g>
+            <!-- scatterplot will go here -->
+            <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
+            <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
+            <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
 
+        </svg>
 
-<dl class="info tooltip" bind:this={commitTooltip} hidden={hoveredIndex === -1} style="top: {cursor.y}px; left: {cursor.x}px">
-    <dt>Commit</dt>
-    <dd><a href="{ hoveredCommit.url }" target="_blank">{ hoveredCommit.id }</a></dd>
+        <Bar data={languageBreakdown} width={width} />
 
-    <dt>Date</dt>
-    <dd>{ hoveredCommit.datetime?.toLocaleString("en", {dateStyle: "full"}) }</dd>
+        
+        <dl class="info tooltip" bind:this={commitTooltip} hidden={hoveredIndex === -1} style="top: {cursor.y}px; left: {cursor.x}px">
+            <dt>Commit</dt>
+            <dd><a href="{ hoveredCommit.url }" target="_blank">{ hoveredCommit.id }</a></dd>
 
-    <dt>Author</dt>
-    <dd>{ hoveredCommit.author }</dd>
+            <dt>Date</dt>
+            <dd>{ hoveredCommit.datetime?.toLocaleString("en", {dateStyle: "full"}) }</dd>
 
-    <dt>Time</dt>
-    <dd>{ hoveredCommit.time }</dd>
+            <dt>Author</dt>
+            <dd>{ hoveredCommit.author }</dd>
 
-    <!-- Add: Time, author, lines edited -->
-</dl>
+            <dt>Time</dt>
+            <dd>{ hoveredCommit.time }</dd>
+
+            <!-- Add: Time, author, lines edited -->
+        </dl>
+	</svelte:fragment>
+</Scrolly>
 
 <style>
     dl {
